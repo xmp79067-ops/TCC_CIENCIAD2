@@ -1,4 +1,8 @@
-"""Dashboard ejecutivo: predicción de churn, perfil (cluster) y explicación SHAP.
+f"No se pudo procesar el archivo: {exc}")
+    else:
+        res = score(feats, model, cluster, umbral)
+        n_desc = len(crudo) - len(res)
+        m1, m2, m"""Dashboard ejecutivo: predicción de churn, perfil (cluster) y explicación SHAP.
 
 Ejecutar desde la raíz del proyecto:  streamlit run app/app.py
 (antes: python -m src.generate_data, src.train, src.clustering)
@@ -17,6 +21,7 @@ import streamlit as st
 from src import config
 from src.data_prep import engineer_features
 from src.explain import make_explainer, shap_for_class1, transform_for_clf
+from src.predict import REQUIRED, prepare, score
 
 st.set_page_config(page_title="DataCloud Churn", page_icon="📉", layout="wide")
 
@@ -109,3 +114,45 @@ else:
 
 with st.expander("Perfiles de clientes (segmentación K-Means)"):
     st.dataframe(cluster["profiles"].round(2))
+
+# ----------------------------------------------------------------------------
+# Predicción por lotes: subir un CSV con varios clientes
+# ----------------------------------------------------------------------------
+st.divider()
+st.header("📂 Predicción por lotes (archivo CSV)")
+st.caption("Sube un CSV con una fila por cliente. Columnas obligatorias: " + ", ".join(REQUIRED)
+           + ". Opcional: ID_Cliente. Se aplica la misma limpieza del entrenamiento "
+           "(formatos de antigüedad, edades imposibles, faltantes, etc.). Usa el umbral de la barra lateral.")
+
+ejemplo = config.ROOT / "data" / "ejemplo" / "clientes_nuevos_ejemplo.csv"
+if ejemplo.exists():
+    st.download_button("⬇️ Descargar archivo de ejemplo", ejemplo.read_bytes(),
+                       file_name=ejemplo.name, mime="text/csv")
+
+archivo = st.file_uploader("Sube tu archivo CSV", type=["csv"])
+if archivo is not None:
+    try:
+        crudo = pd.read_csv(archivo)
+        feats = prepare(crudo)
+    except Exception as exc:
+        st.error(3 = st.columns(3)
+        m1.metric("Clientes procesados", f"{len(res)}")
+        m2.metric("En riesgo ALTO", f"{int((res['Decision'] == 'Riesgo ALTO').sum())}")
+        m3.metric("% en riesgo ALTO", f"{(res['Decision'] == 'Riesgo ALTO').mean():.0%}")
+        if n_desc:
+            st.warning(f"Se descartaron {n_desc} fila(s) por ID nulo o duplicado.")
+        st.dataframe(res)
+        st.download_button("⬇️ Descargar resultados (CSV)", res.to_csv(index=False).encode("utf-8"),
+                           file_name="resultados_churn.csv", mime="text/csv")
+
+        if explainer is not None:
+            import shap
+            elegido = st.selectbox("Explicar el riesgo de un cliente del archivo (SHAP)", res["ID_Cliente"].tolist())
+            fila = feats.loc[feats["ID_Cliente"] == elegido, config.MODEL_INPUTS].head(1)
+            Xb, nombres = transform_for_clf(model, fila)
+            svb, baseb = shap_for_class1(explainer, Xb)
+            expb = shap.Explanation(values=svb[0], base_values=baseb, data=Xb[0], feature_names=nombres)
+            figb = plt.figure()
+            shap.plots.waterfall(expb, show=False)
+            st.pyplot(figb)
+            plt.close(figb)
