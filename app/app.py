@@ -1,8 +1,4 @@
-f"No se pudo procesar el archivo: {exc}")
-    else:
-        res = score(feats, model, cluster, umbral)
-        n_desc = len(crudo) - len(res)
-        m1, m2, m"""Dashboard ejecutivo: predicción de churn, perfil (cluster) y explicación SHAP.
+"""Dashboard ejecutivo: predicción de churn, perfil (cluster) y explicación SHAP.
 
 Ejecutar desde la raíz del proyecto:  streamlit run app/app.py
 (antes: python -m src.generate_data, src.train, src.clustering)
@@ -135,7 +131,11 @@ if archivo is not None:
         crudo = pd.read_csv(archivo)
         feats = prepare(crudo)
     except Exception as exc:
-        st.error(3 = st.columns(3)
+        st.error(f"No se pudo procesar el archivo: {exc}")
+    else:
+        res = score(feats, model, cluster, umbral)
+        n_desc = len(crudo) - len(res)
+        m1, m2, m3 = st.columns(3)
         m1.metric("Clientes procesados", f"{len(res)}")
         m2.metric("En riesgo ALTO", f"{int((res['Decision'] == 'Riesgo ALTO').sum())}")
         m3.metric("% en riesgo ALTO", f"{(res['Decision'] == 'Riesgo ALTO').mean():.0%}")
