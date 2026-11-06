@@ -1,0 +1,31 @@
+{
+  "best_model": "Random_Forest",
+  "features_selected": [
+    "Uso_Diario_Min",
+    "Monto_Mensual",
+    "Costo_Por_Minuto",
+    "Edad",
+    "Antiguedad_Meses",
+    "Soporte_Tickets",
+    "Atencion_Requerida"
+  ],
+  "features_all": [
+    "Uso_Diario_Min",
+    "Monto_Mensual",
+    "Costo_Por_Minuto",
+    "Edad",
+    "Antiguedad_Meses",
+    "Soporte_Tickets",
+    "Genero_F",
+    "Genero_M",
+    "Genero_Otro",
+    "Region_Centro",
+    "Region_Este",
+    "Region_Norte",
+    "Region_Oeste",
+    "Region_Sur",
+    "Atencion_Requerida",
+    "Soporte_Faltante"
+  ],
+  "smote": false
+}
